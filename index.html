@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dynasty Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: #0b1220;
+    color: #e8edf5;
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  .display-font { font-family: 'Fraunces', serif; font-variation-settings: 'opsz' 144; letter-spacing: -0.02em; }
+  .mono-font { font-family: 'JetBrains Mono', monospace; }
+
+  .bg-glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(900px circle at 12% 8%, rgba(56, 189, 248, 0.12), transparent 50%),
+      radial-gradient(700px circle at 88% 92%, rgba(168, 85, 247, 0.08), transparent 50%);
+  }
+  .grid-overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .content { position: relative; z-index: 1; }
+
+  .field {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    color: #e8edf5;
+    padding: 11px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.2s;
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    outline: none;
+  }
+  .field:focus {
+    border-color: #38bdf8;
+    background: rgba(15, 23, 42, 0.9);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+  }
+  .field::placeholder { color: #475569; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+    color: #0b1220;
+    border: none;
+    padding: 11px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #94a3b8;
+    padding: 9px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; }
+
+  .cat-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    padding: 11px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 4px;
+    transition: all 0.18s;
+    gap: 10px;
+  }
+  .cat-btn:hover { background: rgba(56, 189, 248, 0.06); color: #e8edf5; }
+  .cat-btn.active {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.05) 100%);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+  }
+  .cat-btn .left { display: flex; align-items: center; gap: 10px; }
+  .cat-btn .count {
+    font-family: 'JetBrains Mono';
+    font-size: 11px;
+    color: #475569;
+    background: rgba(148, 163, 184, 0.08);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .cat-btn.active .count { color: #38bdf8; background: rgba(56, 189, 248, 0.15); }
+
+  .tag-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(148, 163, 184, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    color: #94a3b8;
+    padding: 4px 10px;
+    font-family: 'JetBrains Mono';
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.15s;
+  }
+  .tag-pill:hover { border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; }
+  .tag-pill.active {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #38bdf8;
+  }
+
+  .link-card {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    padding: 18px;
+    border-radius: 14px;
+    transition: all 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+  }
+  .link-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0), transparent);
+    transition: all 0.4s;
+  }
+  .link-card:hover {
+    border-color: rgba(56, 189, 248, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
+  }
+  .link-card:hover::before {
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+  }
+  .link-card .actions { opacity: 0; transition: opacity 0.15s; }
+  .link-card:hover .actions { opacity: 1; }
+
+  .icon-btn {
+    background: transparent; border: none; color: #64748b; cursor: pointer;
+    padding: 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+  .icon-btn.danger:hover { color: #f87171; background: rgba(248, 113, 113, 0.08); }
+
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(8, 12, 22, 0.7);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    padding: 32px;
+    border-radius: 18px;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(56, 189, 248, 0.08);
+  }
+  .label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .icon-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .icon-pick {
+    width: 38px; height: 38px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.15s;
+  }
+  .icon-pick:hover { border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; }
+  .icon-pick.active {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #38bdf8;
+  }
+
+  .layout { display: grid; grid-template-columns: 260px 1fr; gap: 36px; }
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; gap: 24px; }
+    .header-grid { grid-template-columns: 1fr !important; }
+    .grid-cards { grid-template-columns: 1fr !important; }
+    .hero-title { font-size: 56px !important; }
+    .d-logo { width: 64px !important; height: 64px !important; }
+  }
+
+  select.field {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* Login Screen */
+  .login-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #0b1220;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .login-logo {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 28px;
+    filter: drop-shadow(0 0 32px rgba(56, 189, 248, 0.4));
+  }
+  .login-title {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144;
+    font-size: 56px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+    line-height: 0.95;
+    margin: 0 0 16px;
+  }
+  .login-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #38bdf8;
+    letter-spacing: 0.25em;
+    margin-bottom: 40px;
+  }
+  .login-form {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 16px;
+    padding: 28px;
+    backdrop-filter: blur(8px);
+  }
+  .hidden { display: none !important; }
+
+  .empty-state {
+    padding: 80px 20px;
+    text-align: center;
+    border: 1px dashed rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.3);
+  }
+
+  .save-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .save-status.show { opacity: 1; }
+  .save-status .dot { width: 5px; height: 5px; background: #38bdf8; border-radius: 50%; }
+</style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-screen">
+    <div class="bg-glow"></div>
+    <div class="grid-overlay"></div>
+    <div class="login-card">
+      <svg class="login-logo" viewBox="0 0 1071 1028" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="dGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#38bdf8" />
+            <stop offset="100%" stop-color="#a855f7" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(-109.921448,1120.703960) scale(0.1,-0.1)" fill="url(#dGradLogin)">
+          <path d="M6075 11203 c-148 -7 -557 -45 -705 -64 -1277 -163 -2441 -695 -3254 -1489 -515 -502 -854 -1068 -971 -1620 -43 -200 -58 -534 -35 -745 46 -412 194 -749 434 -991 251 -252 571 -386 956 -401 551 -21 992 254 1264 787 187 366 268 841 201 1165 -16 75 -44 155 -54 155 -4 0 -27 -30 -51 -67 -156 -237 -383 -432 -584 -500 -102 -35 -240 -39 -324 -10 -280 98 -380 486 -236 917 168 506 584 1021 1149 1420 210 148 540 329 815 445 654 276 1469 413 2182 365 228 -16 677 -76 695 -93 2 -2 -30 -16 -69 -32 -188 -72 -497 -249 -673 -384 -288 -221 -543 -486 -751 -781 -225 -319 -460 -794 -607 -1230 -117 -344 -231 -782 -321 -1231 -43 -215 -149 -846 -211 -1259 -124 -828 -254 -1408 -445 -1995 -87 -266 -139 -397 -155 -391 -66 25 -324 103 -417 126 -693 170 -1427 64 -1943 -281 -129 -86 -294 -247 -373 -361 -308 -450 -272 -983 90 -1339 211 -208 540 -342 933 -380 146 -14 430 -6 570 16 437 69 866 260 1220 544 137 109 359 333 497 499 l27 33 113 -62 c754 -412 1281 -589 1913 -640 214 -17 650 -7 830 20 451 67 793 173 1212 376 452 219 817 480 1194 855 431 429 795 957 1067 1550 315 687 491 1359 542 2075 13 182 13 616 0 781 -13 162 -44 403 -71 542 -261 1372 -1160 2538 -2434 3153 -582 281 -1196 439 -1970 505 -171 15 -1067 27 -1250 17z m2357 -1107 c374 -72 903 -490 1229 -972 122 -181 269 -453 340 -632 320 -795 383 -1791 178 -2806 -135 -668 -490 -1440 -922 -2006 -505 -660 -1042 -1041 -1711 -1214 -199 -52 -329 -67 -603 -73 -408 -9 -671 29 -1103 159 -112 33 -408 135 -418 143 -2 1 53 87 121 191 185 283 239 375 377 649 369 731 554 1427 770 2900 47 326 72 472 141 835 285 1490 614 2298 1081 2650 132 99 228 147 353 175 78 17 80 17 167 1z m-4766 -7531 c107 -16 330 -68 341 -79 16 -16 -117 -195 -242 -325 -249 -258 -531 -385 -855 -384 -171 0 -274 32 -362 111 -106 95 -108 257 -5 393 81 109 201 188 367 243 92 30 155 43 300 60 69 8 357 -4 456 -19z" />
+        </g>
+      </svg>
+      <div class="login-subtitle">COMMAND CENTER</div>
+      <h1 class="login-title">Dynasty <span style="font-style: italic; background: linear-gradient(135deg, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; padding-right: 0.15em; display: inline-block;">Hub</span></h1>
+      <div class="login-form">
+        <div style="margin-bottom: 16px; text-align: left;">
+          <label class="label">Password</label>
+          <input id="loginInput" type="password" class="field" placeholder="Enter password to continue" autocomplete="off" autofocus />
+          <div id="loginError" class="hidden" style="font-size: 12px; color: #f87171; margin-top: 8px;">Incorrect password</div>
+        </div>
+        <button class="btn-primary" style="width: 100%; justify-content: center; padding: 13px;" onclick="submitLogin()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Enter Hub
+        </button>
+      </div>
+      <div style="margin-top: 24px; font-size: 11px; color: #475569; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.15em;">
+        Created by <span style="color: #64748b;">Taylor Burnett</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App (hidden until logged in) -->
+  <div id="appContainer" class="hidden">
+  <div class="bg-glow"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="content">
+    <!-- Header -->
+    <div style="border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
+      <div style="max-width: 1280px; margin: 0 auto; padding: 40px 24px;">
+        <div class="header-grid" style="display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end;">
+          <div>
+            <div class="mono-font" style="font-size: 11px; color: #38bdf8; letter-spacing: 0.25em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <span style="width: 6px; height: 6px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 12px #38bdf8;"></span>
+              COMMAND CENTER
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <svg class="d-logo" viewBox="0 0 1071 1028" width="92" height="92" style="flex-shrink: 0; filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.35));" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="dGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8" />
+                    <stop offset="100%" stop-color="#a855f7" />
+                  </linearGradient>
+                </defs>
+                <g transform="translate(-109.921448,1120.703960) scale(0.1,-0.1)" fill="url(#dGrad)">
+                  <path d="M6075 11203 c-148 -7 -557 -45 -705 -64 -1277 -163 -2441 -695 -3254 -1489 -515 -502 -854 -1068 -971 -1620 -43 -200 -58 -534 -35 -745 46 -412 194 -749 434 -991 251 -252 571 -386 956 -401 551 -21 992 254 1264 787 187 366 268 841 201 1165 -16 75 -44 155 -54 155 -4 0 -27 -30 -51 -67 -156 -237 -383 -432 -584 -500 -102 -35 -240 -39 -324 -10 -280 98 -380 486 -236 917 168 506 584 1021 1149 1420 210 148 540 329 815 445 654 276 1469 413 2182 365 228 -16 677 -76 695 -93 2 -2 -30 -16 -69 -32 -188 -72 -497 -249 -673 -384 -288 -221 -543 -486 -751 -781 -225 -319 -460 -794 -607 -1230 -117 -344 -231 -782 -321 -1231 -43 -215 -149 -846 -211 -1259 -124 -828 -254 -1408 -445 -1995 -87 -266 -139 -397 -155 -391 -66 25 -324 103 -417 126 -693 170 -1427 64 -1943 -281 -129 -86 -294 -247 -373 -361 -308 -450 -272 -983 90 -1339 211 -208 540 -342 933 -380 146 -14 430 -6 570 16 437 69 866 260 1220 544 137 109 359 333 497 499 l27 33 113 -62 c754 -412 1281 -589 1913 -640 214 -17 650 -7 830 20 451 67 793 173 1212 376 452 219 817 480 1194 855 431 429 795 957 1067 1550 315 687 491 1359 542 2075 13 182 13 616 0 781 -13 162 -44 403 -71 542 -261 1372 -1160 2538 -2434 3153 -582 281 -1196 439 -1970 505 -171 15 -1067 27 -1250 17z m2357 -1107 c374 -72 903 -490 1229 -972 122 -181 269 -453 340 -632 320 -795 383 -1791 178 -2806 -135 -668 -490 -1440 -922 -2006 -505 -660 -1042 -1041 -1711 -1214 -199 -52 -329 -67 -603 -73 -408 -9 -671 29 -1103 159 -112 33 -408 135 -418 143 -2 1 53 87 121 191 185 283 239 375 377 649 369 731 554 1427 770 2900 47 326 72 472 141 835 285 1490 614 2298 1081 2650 132 99 228 147 353 175 78 17 80 17 167 1z m-4766 -7531 c107 -16 330 -68 341 -79 16 -16 -117 -195 -242 -325 -249 -258 -531 -385 -855 -384 -171 0 -274 32 -362 111 -106 95 -108 257 -5 393 81 109 201 188 367 243 92 30 155 43 300 60 69 8 357 -4 456 -19z" />
+                </g>
+              </svg>
+              <h1 class="display-font hero-title" style="font-size: 84px; line-height: 0.92; margin: 0; color: #f8fafc; font-weight: 600;">
+                Dynasty <span style="font-style: italic; background: linear-gradient(135deg, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; padding-right: 0.15em; display: inline-block;">Hub</span>
+              </h1>
+            </div>
+            <div id="metaBar" style="font-size: 14px; color: #64748b; margin-top: 14px; font-weight: 400;">
+              0 links · 0 categories · 0 tags
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <span id="saveStatus" class="save-status"><span class="dot"></span><span id="saveText">saved</span></span>
+            <button class="btn-ghost" onclick="logout()" title="Log out" style="padding: 9px 12px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+            <button class="btn-primary" onclick="openForm()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Link
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="max-width: 1280px; margin: 0 auto; padding: 36px 24px 80px;">
+      <div class="layout">
+        <!-- Sidebar -->
+        <aside>
+          <!-- Search -->
+          <div style="position: relative; margin-bottom: 24px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="searchInput" class="field" style="padding-left: 38px;" placeholder="Search links..." />
+            <button id="searchClear" onclick="clearSearch()" style="display:none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #64748b; cursor: pointer; padding: 4px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <!-- Categories -->
+          <div style="margin-bottom: 28px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span style="font-size: 11px; color: #64748b; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600;">Categories</span>
+              <button class="icon-btn" onclick="showNewCatForm()" title="Add category">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+              </button>
+            </div>
+            <div id="categoryList"></div>
+            <div id="newCatForm" style="display:none; margin-top: 10px; padding: 12px; background: rgba(15, 23, 42, 0.5); border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.15);">
+              <input id="newCatName" class="field" placeholder="Category name" style="font-size: 13px; margin-bottom: 10px;" />
+              <div id="iconPicker" class="icon-picker" style="margin-bottom: 10px;"></div>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-primary" style="padding: 8px 14px; font-size: 12px; flex: 1;" onclick="addCategory()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Add
+                </button>
+                <button class="btn-ghost" style="padding: 8px 14px; font-size: 12px;" onclick="hideNewCatForm()">Cancel</button>
+              </div>
+            </div>
+            <button id="deleteCatBtn" class="btn-ghost" style="display:none; margin-top: 12px; width: 100%; justify-content: center; font-size: 12px;" onclick="deleteCurrentCategory()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+              <span id="deleteCatText">Delete category</span>
+            </button>
+          </div>
+
+          <!-- Tags -->
+          <div id="tagsSection" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span style="font-size: 11px; color: #64748b; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600;">Tags</span>
+              <button id="clearTagsBtn" style="display:none; background: transparent; border: none; color: #64748b; cursor: pointer; font-size: 11px; font-family: Inter;" onclick="clearTags()">clear</button>
+            </div>
+            <div id="tagsList" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main>
+          <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: baseline;">
+            <h2 id="sectionTitle" class="display-font" style="font-size: 36px; margin: 0; color: #f8fafc; font-weight: 600;">All links</h2>
+            <span id="resultCount" class="mono-font" style="font-size: 12px; color: #64748b;">0 results</span>
+          </div>
+          <div id="cardsArea"></div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="border-top: 1px solid rgba(148, 163, 184, 0.08); padding: 24px; text-align: center;">
+      <div class="mono-font" style="font-size: 11px; color: #475569; letter-spacing: 0.25em; margin-bottom: 6px;">DYNASTY HUB</div>
+      <div style="font-size: 11px; color: #334155; font-weight: 400;">
+        Created by <span style="color: #64748b; font-weight: 500;">Taylor Burnett</span>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  <!-- /appContainer -->
+
+  <!-- Password Modal -->
+  <div id="pwModal" class="modal-bg" onclick="if(event.target===this) closePasswordPrompt()">
+    <div class="modal" style="max-width: 400px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="width: 56px; height: 56px; margin: 0 auto 16px; background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #38bdf8;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="display-font" style="font-size: 26px; margin: 0 0 6px; font-weight: 600; color: #f8fafc;">Edit Access</h2>
+        <p style="font-size: 13px; color: #64748b; margin: 0;">Enter the edit password to make changes</p>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <input id="pwInput" type="password" class="field" placeholder="Password" autocomplete="off" />
+        <div id="pwError" style="display:none; font-size: 12px; color: #f87171; margin-top: 8px; text-align: center;">Incorrect password</div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-ghost" style="flex: 1; justify-content: center;" onclick="closePasswordPrompt()">Cancel</button>
+        <button class="btn-primary" style="flex: 1; justify-content: center;" onclick="submitPassword()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal-bg" onclick="if(event.target===this) closeForm()">
+    <div class="modal">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2 id="modalTitle" class="display-font" style="font-size: 30px; margin: 0; font-weight: 600; color: #f8fafc;">New link</h2>
+        <button class="icon-btn" onclick="closeForm()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label class="label">Title</label>
+        <input id="formTitle" class="field" placeholder="e.g. Q4 Leaderboard Dashboard" />
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label class="label">URL</label>
+        <input id="formUrl" class="field mono-font" style="font-size: 13px;" placeholder="https://your-app.vercel.app" />
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label class="label">Category</label>
+        <select id="formCategory" class="field"></select>
+      </div>
+      <div style="margin-bottom: 28px;">
+        <label class="label">Tags <span style="color: #475569; font-weight: 400;">· comma separated</span></label>
+        <input id="formTags" class="field" placeholder="dashboard, live, q4" />
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn-ghost" onclick="closeForm()">Cancel</button>
+        <button id="saveBtn" class="btn-primary" onclick="saveLink()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="saveBtnText">Save</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ===== ICONS =====
+const ICONS = {
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  graduation: '<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+  folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  lightbulb: '<path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
+  door: '<path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z"/>',
+  externalLink: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
+  edit: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+};
+const icon = (name, size=14) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.folder}</svg>`;
+
+// ===== STATE =====
+const LOGIN_PASSWORD = 'Southlake';
+const EDIT_PASSWORD = 'Texas';
+const UNLOCK_KEY = 'dh_unlocked_v1';
+const AUTH_KEY = 'dh_authed_v1';
+
+const DEFAULT_CATEGORIES = [
+  { name: 'Leaderboard', icon: 'trophy' },
+  { name: 'Leadership', icon: 'users' },
+  { name: 'DBD', icon: 'zap' },
+  { name: 'Trainings', icon: 'graduation' },
+  { name: 'Sunday Planning', icon: 'calendar' },
+  { name: 'Tips and Tricks', icon: 'lightbulb' },
+  { name: 'The Door Knock', icon: 'door' },
+];
+const ICON_OPTIONS = ['trophy', 'users', 'zap', 'graduation', 'calendar', 'lightbulb', 'door', 'folder', 'sparkles'];
+
+let state = {
+  links: [],
+  categories: DEFAULT_CATEGORIES.slice(),
+  activeCategory: 'All',
+  activeTags: [],
+  search: '',
+  editing: null,
+  newCatIcon: 'folder',
+  unlocked: false,
+};
+
+function isUnlocked() { return state.unlocked; }
+
+function requireUnlock(action) {
+  if (state.unlocked) { action(); return; }
+  showPasswordPrompt(action);
+}
+
+function showPasswordPrompt(onSuccess) {
+  const modal = document.getElementById('pwModal');
+  modal.classList.add('show');
+  const input = document.getElementById('pwInput');
+  input.value = '';
+  document.getElementById('pwError').style.display = 'none';
+  setTimeout(() => input.focus(), 50);
+  modal._onSuccess = onSuccess;
+}
+
+function submitPassword() {
+  const input = document.getElementById('pwInput');
+  if (input.value === EDIT_PASSWORD) {
+    state.unlocked = true;
+    try { sessionStorage.setItem(UNLOCK_KEY, '1'); } catch (e) {}
+    document.getElementById('pwModal').classList.remove('show');
+    renderAll();
+    const cb = document.getElementById('pwModal')._onSuccess;
+    if (cb) cb();
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    input.focus();
+    input.select();
+  }
+}
+
+function closePasswordPrompt() {
+  document.getElementById('pwModal').classList.remove('show');
+}
+
+function lockHub() {
+  state.unlocked = false;
+  try { sessionStorage.removeItem(UNLOCK_KEY); } catch (e) {}
+  renderAll();
+}
+
+function submitLogin() {
+  const input = document.getElementById('loginInput');
+  if (input.value === LOGIN_PASSWORD) {
+    try { sessionStorage.setItem(AUTH_KEY, '1'); } catch (e) {}
+    showApp();
+    renderAll();
+  } else {
+    document.getElementById('loginError').classList.remove('hidden');
+    input.focus();
+    input.select();
+  }
+}
+
+function showApp() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appContainer').classList.remove('hidden');
+}
+
+function logout() {
+  if (!confirm('Log out of Dynasty Hub?')) return;
+  try {
+    sessionStorage.removeItem(AUTH_KEY);
+    sessionStorage.removeItem(UNLOCK_KEY);
+  } catch (e) {}
+  state.unlocked = false;
+  document.getElementById('appContainer').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginInput').value = '';
+  document.getElementById('loginError').classList.add('hidden');
+  setTimeout(() => document.getElementById('loginInput').focus(), 50);
+}
+
+function isAuthed() {
+  try { return sessionStorage.getItem(AUTH_KEY) === '1'; } catch (e) { return false; }
+}
+
+function handleLockClick() {
+  if (state.unlocked) {
+    if (confirm('Lock the hub? You\'ll need the password to make changes again.')) lockHub();
+  } else {
+    showPasswordPrompt(() => {});
+  }
+}
+
+function renderLockBtn() {
+  const btn = document.getElementById('lockBtn');
+  const iconEl = document.getElementById('lockIcon');
+  if (state.unlocked) {
+    btn.title = 'Unlocked — click to lock';
+    btn.style.color = '#38bdf8';
+    btn.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+    iconEl.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
+  } else {
+    btn.title = 'Locked — click to unlock';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    iconEl.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+  }
+}
+
+// ===== STORAGE =====
+const STORAGE_KEY_LINKS = 'dh_links_v1';
+const STORAGE_KEY_CATS = 'dh_categories_v1';
+
+function load() {
+  try {
+    const l = localStorage.getItem(STORAGE_KEY_LINKS);
+    const c = localStorage.getItem(STORAGE_KEY_CATS);
+    if (l) state.links = JSON.parse(l);
+    if (c) state.categories = JSON.parse(c);
+    if (sessionStorage.getItem(UNLOCK_KEY) === '1') state.unlocked = true;
+  } catch (e) { console.error('Load failed', e); }
+}
+
+let saveTimer;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_LINKS, JSON.stringify(state.links));
+      localStorage.setItem(STORAGE_KEY_CATS, JSON.stringify(state.categories));
+      showSaveStatus('saved');
+    } catch (e) { showSaveStatus('error'); }
+  }, 250);
+}
+
+function showSaveStatus(text) {
+  const el = document.getElementById('saveStatus');
+  document.getElementById('saveText').textContent = text;
+  el.classList.add('show');
+  clearTimeout(showSaveStatus._t);
+  showSaveStatus._t = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// ===== UTILS =====
+const uid = () => Math.random().toString(36).slice(2, 10);
+const tidyUrl = (u) => !u ? '' : (/^https?:\/\//i.test(u) ? u : 'https://' + u);
+const getDomain = (url) => { try { return new URL(tidyUrl(url)).hostname.replace(/^www\./, ''); } catch { return ''; } };
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function getAllTags() {
+  const s = new Set();
+  state.links.forEach(l => (l.tags || []).forEach(t => s.add(t)));
+  return [...s].sort();
+}
+
+function getFiltered() {
+  return state.links.filter(l => {
+    if (state.activeCategory !== 'All' && l.category !== state.activeCategory) return false;
+    if (state.activeTags.length && !state.activeTags.every(t => (l.tags || []).includes(t))) return false;
+    if (state.search) {
+      const q = state.search.toLowerCase();
+      if (!l.title.toLowerCase().includes(q) && !l.url.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function getCounts() {
+  const c = { All: state.links.length };
+  state.categories.forEach(cat => { c[cat.name] = state.links.filter(l => l.category === cat.name).length; });
+  return c;
+}
+
+function getCategoryIcon(catName) {
+  const cat = state.categories.find(c => c.name === catName);
+  return cat ? (cat.icon || 'folder') : 'folder';
+}
+
+// ===== RENDER =====
+function renderCategories() {
+  const counts = getCounts();
+  const list = document.getElementById('categoryList');
+  let html = `<button class="cat-btn ${state.activeCategory === 'All' ? 'active' : ''}" onclick="setActiveCategory('All')">
+    <span class="left">${icon('sparkles')} All</span>
+    <span class="count">${counts.All || 0}</span>
+  </button>`;
+  state.categories.forEach(cat => {
+    html += `<button class="cat-btn ${state.activeCategory === cat.name ? 'active' : ''}" onclick="setActiveCategory('${escapeHtml(cat.name)}')">
+      <span class="left">${icon(cat.icon || 'folder')} ${escapeHtml(cat.name)}</span>
+      <span class="count">${counts[cat.name] || 0}</span>
+    </button>`;
+  });
+  list.innerHTML = html;
+
+  // Delete category button
+  const delBtn = document.getElementById('deleteCatBtn');
+  if (state.activeCategory !== 'All' && state.categories.find(c => c.name === state.activeCategory)) {
+    delBtn.style.display = 'inline-flex';
+    document.getElementById('deleteCatText').textContent = `Delete "${state.activeCategory}"`;
+  } else {
+    delBtn.style.display = 'none';
+  }
+}
+
+function renderTags() {
+  const tags = getAllTags();
+  const section = document.getElementById('tagsSection');
+  if (!tags.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  document.getElementById('clearTagsBtn').style.display = state.activeTags.length ? 'inline' : 'none';
+  document.getElementById('tagsList').innerHTML = tags.map(t =>
+    `<span class="tag-pill ${state.activeTags.includes(t) ? 'active' : ''}" onclick="toggleTag('${escapeHtml(t)}')">${escapeHtml(t)}</span>`
+  ).join('');
+}
+
+function renderCards() {
+  const filtered = getFiltered();
+  document.getElementById('sectionTitle').textContent = state.activeCategory === 'All' ? 'All links' : state.activeCategory;
+  document.getElementById('resultCount').textContent = `${filtered.length} ${filtered.length === 1 ? 'result' : 'results'}`;
+
+  const area = document.getElementById('cardsArea');
+  if (!filtered.length) {
+    const isEmpty = state.links.length === 0;
+    area.innerHTML = `<div class="empty-state">
+      <div class="display-font" style="font-size: 32px; color: #475569; margin-bottom: 8px; font-weight: 600;">${isEmpty ? 'Empty hub' : 'No matches'}</div>
+      <div style="font-size: 14px; color: #64748b; margin-bottom: 24px;">${isEmpty ? 'Drop your first link to get started' : 'Try clearing filters or search'}</div>
+      ${isEmpty ? `<button class="btn-primary" onclick="openForm()">${icon('sparkles', 15)} Add First Link</button>` : ''}
+    </div>`;
+    return;
+  }
+
+  area.innerHTML = `<div class="grid-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px;">
+    ${filtered.map(link => `
+      <div class="link-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" style="color: #f8fafc; font-weight: 600; font-size: 16px; line-height: 1.35; flex: 1;">${escapeHtml(link.title)}</a>
+          <div class="actions" style="display: flex; gap: 2px;">
+            <button class="icon-btn" onclick="openForm('${link.id}')" title="Edit">${icon('edit', 13)}</button>
+            <button class="icon-btn danger" onclick="deleteLink('${link.id}')" title="Delete">${icon('trash', 13)}</button>
+          </div>
+        </div>
+        <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" class="mono-font" style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          ${icon('externalLink', 11)} ${escapeHtml(getDomain(link.url))}
+        </a>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; border-top: 1px solid rgba(148, 163, 184, 0.08); padding-top: 12px;">
+          ${link.category ? `<span style="font-size: 11px; color: #38bdf8; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-right: 4px;">${icon(getCategoryIcon(link.category), 11)} ${escapeHtml(link.category)}</span>` : ''}
+          ${(link.tags || []).map(t => `<span class="tag-pill" style="pointer-events: none; font-size: 10px; padding: 2px 8px;">${escapeHtml(t)}</span>`).join('')}
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function renderMeta() {
+  const tags = getAllTags();
+  const n = state.links.length;
+  document.getElementById('metaBar').textContent = `${n} ${n === 1 ? 'link' : 'links'} · ${state.categories.length} categories · ${tags.length} tags`;
+}
+
+function renderAll() {
+  renderCategories();
+  renderTags();
+  renderCards();
+  renderMeta();
+}
+
+// ===== ACTIONS =====
+function setActiveCategory(name) { state.activeCategory = name; renderAll(); }
+function toggleTag(t) {
+  state.activeTags = state.activeTags.includes(t) ? state.activeTags.filter(x => x !== t) : [...state.activeTags, t];
+  renderAll();
+}
+function clearTags() { state.activeTags = []; renderAll(); }
+
+function clearSearch() {
+  state.search = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  renderAll();
+}
+
+function showNewCatForm() {
+  if (!state.unlocked) { showPasswordPrompt(() => showNewCatForm()); return; }
+  document.getElementById('newCatForm').style.display = 'block';
+  document.getElementById('newCatName').focus();
+  state.newCatIcon = 'folder';
+  renderIconPicker();
+}
+function hideNewCatForm() {
+  document.getElementById('newCatForm').style.display = 'none';
+  document.getElementById('newCatName').value = '';
+}
+
+function renderIconPicker() {
+  document.getElementById('iconPicker').innerHTML = ICON_OPTIONS.map(ic =>
+    `<div class="icon-pick ${state.newCatIcon === ic ? 'active' : ''}" onclick="pickIcon('${ic}')">${icon(ic, 16)}</div>`
+  ).join('');
+}
+function pickIcon(ic) { state.newCatIcon = ic; renderIconPicker(); }
+
+function addCategory() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name || state.categories.find(c => c.name === name)) { hideNewCatForm(); return; }
+  state.categories.push({ name, icon: state.newCatIcon });
+  hideNewCatForm();
+  state.activeCategory = name;
+  save();
+  renderAll();
+}
+
+function deleteCurrentCategory() {
+  if (!state.unlocked) { showPasswordPrompt(() => deleteCurrentCategory()); return; }
+  const cat = state.activeCategory;
+  const inUse = state.links.filter(l => l.category === cat).length;
+  if (inUse && !confirm(`${inUse} link(s) use "${cat}". Delete category? Links will be unassigned.`)) return;
+  state.categories = state.categories.filter(c => c.name !== cat);
+  state.links = state.links.map(l => l.category === cat ? { ...l, category: '' } : l);
+  state.activeCategory = 'All';
+  save();
+  renderAll();
+}
+
+function openForm(id) {
+  if (!state.unlocked) { showPasswordPrompt(() => openForm(id)); return; }
+  const modal = document.getElementById('modal');
+  const sel = document.getElementById('formCategory');
+  sel.innerHTML = state.categories.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+
+  if (id) {
+    const link = state.links.find(l => l.id === id);
+    if (!link) return;
+    state.editing = id;
+    document.getElementById('modalTitle').textContent = 'Edit link';
+    document.getElementById('saveBtnText').textContent = 'Update';
+    document.getElementById('formTitle').value = link.title;
+    document.getElementById('formUrl').value = link.url;
+    document.getElementById('formCategory').value = link.category || state.categories[0]?.name || '';
+    document.getElementById('formTags').value = (link.tags || []).join(', ');
+  } else {
+    state.editing = null;
+    document.getElementById('modalTitle').textContent = 'New link';
+    document.getElementById('saveBtnText').textContent = 'Save';
+    document.getElementById('formTitle').value = '';
+    document.getElementById('formUrl').value = '';
+    document.getElementById('formCategory').value = state.activeCategory !== 'All' ? state.activeCategory : (state.categories[0]?.name || '');
+    document.getElementById('formTags').value = '';
+  }
+
+  modal.classList.add('show');
+  setTimeout(() => document.getElementById('formTitle').focus(), 50);
+}
+
+function closeForm() {
+  document.getElementById('modal').classList.remove('show');
+  state.editing = null;
+}
+
+function saveLink() {
+  const title = document.getElementById('formTitle').value.trim();
+  const url = document.getElementById('formUrl').value.trim();
+  if (!title || !url) return;
+  const tags = document.getElementById('formTags').value.split(',').map(t => t.trim()).filter(Boolean);
+  const data = {
+    title,
+    url: tidyUrl(url),
+    category: document.getElementById('formCategory').value,
+    tags,
+  };
+  if (state.editing) {
+    state.links = state.links.map(l => l.id === state.editing ? { ...l, ...data } : l);
+  } else {
+    state.links.unshift({ id: uid(), ...data, created: Date.now() });
+  }
+  closeForm();
+  save();
+  renderAll();
+}
+
+function deleteLink(id) {
+  if (!state.unlocked) { showPasswordPrompt(() => deleteLink(id)); return; }
+  if (!confirm('Delete this link?')) return;
+  state.links = state.links.filter(l => l.id !== id);
+  save();
+  renderAll();
+}
+
+// ===== EVENTS =====
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  state.search = e.target.value;
+  document.getElementById('searchClear').style.display = state.search ? 'block' : 'none';
+  renderAll();
+});
+
+document.getElementById('newCatName').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addCategory();
+  if (e.key === 'Escape') hideNewCatForm();
+});
+
+document.getElementById('pwInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitPassword();
+  if (e.key === 'Escape') closePasswordPrompt();
+});
+
+document.getElementById('loginInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitLogin();
+});
+
+document.getElementById('loginInput').addEventListener('input', () => {
+  document.getElementById('loginError').classList.add('hidden');
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('modal').classList.contains('show')) closeForm();
+});
+
+// ===== INIT =====
+load();
+if (isAuthed()) {
+  showApp();
+} else {
+  setTimeout(() => document.getElementById('loginInput').focus(), 50);
+}
+renderAll();
+</script>
+</body>
+</html>
